@@ -4001,34 +4001,32 @@ y = \beta_0 + \beta_1log(x)+\varepsilon
 <p>Read the section on intervention variables. The model fit there involves a log transformation. Give an interpretation of the coefficients considering that it is the log-linear case described in reference 2.</p>
 <p>Remember the equation of the model we fitted:</p>
 <p><span class="math display">\[
-log(y) = \beta_0 + \beta_1 t + s_1\delta_2 + s_2\delta_3 + \dots+s_{11}\delta_{12}+\beta_3\delta_{fest}
+log(y) = \beta_0 + \beta_1 t + s_1\delta_2 + s_2\delta_3 + \dots+s_{11}\delta_{12}+\beta_3\delta_{fest} +\varepsilon
 \]</span></p>
+<p>All the regressors follow a linear function (no logs or other non-linear functions).</p>
+<p>Therefore the interpretation for each of the coefficients as semi-elasticities holds by simply deriving both sides of the equation by one regressor at a time (partial derivatives).</p>
+<p>We are going to do the example for <span class="math inline">\(\delta_2\)</span> but this holds for every other regressor in this particular model (remember we derive on the “Expected” form of the equation to remove the error term. See the corresponding section on the notebook for further details):</p>
+<p><span class="math display">\[
+\frac{\partial{log(y)}}{\partial{\delta_2}} = \frac{\partial{log(y)}}{\partial{y}}\frac{\partial{y}}{\partial{\delta_2}}=\frac{1}{y}\frac{\partial{y}}{\partial{\delta_2}}=s_1
+\]</span></p>
+<p>Re-arranging:</p>
+<p><span class="math display">\[
+s_1 = \frac{\frac{\partial{y}}{y}}{\partial{\delta_2}}
+\]</span></p>
+<p>The coefficient s1 can therefore be interpreted as a semi-elasticity. All other coefficients can also be interpreted in this manner. As seen in the theory video and presentation the equation for the average percent increment in y associated to a unit increment in <span class="math inline">\(\delta_2\)</span> is:</p>
+<p><span class="math display">\[
+\% \Delta y = 100[e^{s_1}-1]
+\]</span></p>
+<p>We refit the model briefly for this section of the notebook.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Refitting the model in this section of the notebook</span></span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>souvenirs_dummy <span class="ot">&lt;-</span> souvenirs <span class="sc">%&gt;%</span></span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">dummy_fest =</span> (<span class="fu">month</span>(Month) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">&amp;</span> (<span class="fu">year</span>(Month) <span class="sc">!=</span> <span class="dv">1987</span>))</span>
 <span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>souvenirs_dummy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tsibble: 84 x 3 [1M]
-      Month Sales dummy_fest
-      &lt;mth&gt; &lt;dbl&gt; &lt;lgl&gt;     
- 1 1987 Jan 1665. FALSE     
- 2 1987 Feb 2398. FALSE     
- 3 1987 Mar 2841. FALSE     
- 4 1987 Apr 3547. FALSE     
- 5 1987 May 3753. FALSE     
- 6 1987 Jun 3715. FALSE     
- 7 1987 Jul 4350. FALSE     
- 8 1987 Aug 3566. FALSE     
- 9 1987 Sep 5022. FALSE     
-10 1987 Oct 6423. FALSE     
-# ... with 74 more rows</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> souvenirs_dummy <span class="sc">%&gt;%</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(<span class="at">reg =</span> <span class="fu">TSLM</span>(<span class="fu">log</span>(Sales) <span class="sc">~</span> <span class="fu">trend</span>() <span class="sc">+</span> <span class="fu">season</span>() <span class="sc">+</span> dummy_fest))</span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>fit <span class="sc">%&gt;%</span> <span class="fu">report</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> souvenirs_dummy <span class="sc">%&gt;%</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">model</span>(<span class="at">reg =</span> <span class="fu">TSLM</span>(<span class="fu">log</span>(Sales) <span class="sc">~</span> <span class="fu">trend</span>() <span class="sc">+</span> <span class="fu">season</span>() <span class="sc">+</span> dummy_fest))</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>fit <span class="sc">%&gt;%</span> <span class="fu">report</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Series: Sales 
 Model: TSLM 
@@ -4062,14 +4060,15 @@ Multiple R-squared: 0.9567, Adjusted R-squared: 0.9487
 F-statistic:   119 on 13 and 70 DF, p-value: &lt; 2.22e-16</code></pre>
 </div>
 </div>
+<p>Now you have to compute this delta for each of the regressors and give an interpretation for each of the regressors:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To interpret the coefficients we want to compute the percentage increment in y</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co"># associated to a unit increment in each of the regressors. </span></span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="co"># See the separate video on elasticities or reference 2 to see why this specific</span></span>
-<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="co"># equation is used:</span></span>
-<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pceffect =</span> (<span class="fu">exp</span>(estimate)<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># To interpret the coefficients we want to compute the percentage increment in y</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="co"># associated to a unit increment in each of the regressors. </span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a><span class="co"># See the separate video on elasticities or reference 2 to see why this specific</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a><span class="co"># equation is used:</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(fit) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">pceffect =</span> (<span class="fu">exp</span>(estimate)<span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 14 x 7
    .model term           estimate std.error statistic  p.value  pceffect
@@ -4091,16 +4090,16 @@ F-statistic:   119 on 13 and 70 DF, p-value: &lt; 2.22e-16</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. (Intercept) is not interpretable (value when all the regressors are 0)</span></span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. trend shows that with every month sales increase on average by 2.23%</span></span>
-<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. season2 coefficient shows that February sales are greater than January on average</span></span>
-<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   by 28.6%, after the effect of the trend has been considered.</span></span>
-<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    ...</span></span>
-<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. season12 coefficient shows that December sales are greater than January on average</span></span>
-<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   by 611.5% after the effect of the trend has been considered.</span></span>
-<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. dummy_festTRUE shows that for months that include the surfing festival, sales</span></span>
-<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   increase on average by 65.1% compared to months without the festival, after the</span></span>
-<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   effect of both the trend and the seasonality hae been considered.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. (Intercept) is not interpretable (value when all the regressors are 0)</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. trend shows that with every month sales increase on average by 2.23%</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. season2 coefficient shows that February sales are greater than January on average</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   by 28.6%, after the effect of the trend has been considered.</span></span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="co">#    ...</span></span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. season12 coefficient shows that December sales are greater than January on average</span></span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   by 611.5% after the effect of the trend has been considered.</span></span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. dummy_festTRUE shows that for months that include the surfing festival, sales</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   increase on average by 65.1% compared to months without the festival, after the</span></span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   effect of both the trend and the seasonality hae been considered.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
